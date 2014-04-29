@@ -1,0 +1,89 @@
+<html>
+   <head>
+      <script src="http://localhost:8000/socket.io/socket.io.js"></script>
+      <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+	  <script src="//code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+	  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	  <script src="http://code.jquery.com/jquery-1.6.2.min.js"></script>
+	  <script>
+         var name = '';
+         var socket = io.connect('http://localhost:8000');
+         
+         
+         $(document).ready(function(){
+            $(".input-message-container").live("click", function(){
+				console.log("selected message:"+this.id);
+				//$('.msg-content').switchClass( "msg-content", "clear-bold", 1000, "easeInOutQuad" );
+				$('.msg-content').addClass("clear-bold");
+			});
+            $("button").click(function(){
+            
+               $("p#log").html('<b style="color:green">Message Sent: </b>' + $("input#msg").val());
+               
+               socket.emit('chat', $("input#msg").val() );
+               
+               $("p#data_recieved").append("<br /> <div id='input-message-container-id' class='input-message-container' style='float:none'><b style='color:blue'>\r\n" + name + ": </b><span id='msg-content-id' class='msg-content'> " + $("input#msg").val()+ '</span></div>');
+               
+               $("input#msg").val('');
+            });
+            
+            while (name == '') {
+               name = prompt("What's your name?","");
+            }
+            
+            socket.emit('register', name );
+         });
+         
+         // listen for chat event and recieve data
+         socket.on('chat', function (data) {
+         
+            // print received data
+            $("p#data_recieved").append("<br /> <div id='input-message-container-id' class='input-message-container' style='float:none'>  <b style='color:red;'>\r\n" + data.msgr + ': </b><span id="msg-content-id" class="msg-content">' + data.msg + '</span></div>');
+            
+            // print test data (message recieved) 
+            $("p#log").html('<b style="color:blue;"> Message Recieved: </b>' + data.msg);
+            
+         });
+      </script>
+	
+	<style>
+	.right
+		{
+		margin-left:auto;
+		margin-right:auto;
+		width:70%;
+		background-color:#F2F2F0;
+		}
+	.input-message-container{
+		background-color:#FFFF;
+		height: 70px;
+		border-bottom: 2px solid;
+		overflow:scroll;
+	}	
+	.clear-bold{
+		color:#54422D;	
+		font-size:14px;
+		font-weight:0;
+		font-family:Georgia, "Times New Roman", Times, serif;
+		font-style:italic;
+		background-color:white;
+		
+	}
+	.msg-content{
+		font-weight:200;
+		
+	}
+		
+	</style>
+	  
+   </head>
+   <body>
+      <center>
+	  <input type="text" id="msg"></input><button>Enter</button>
+      <p id="log"></p>
+      </center>
+	  <div id="chat-area" class = "right" style="height:350px;width:50%;overflow:scroll;border:1px solid;">
+	  <p id="data_recieved"></p>
+	  </div>
+   </body>
+</html>
